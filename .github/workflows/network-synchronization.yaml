@@ -3,7 +3,7 @@ name: Network Synchronization
 on:
   schedule:
     - cron: '00 06,18 * * *'
-  workflow_dispatch:
+      #workflow_dispatch:
 
 jobs:
   sync_and_cache:
@@ -17,11 +17,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2.3.3
 
-    - name: ⌚ Get Date/Time
+    - name: Get Date/Time
       id: date-time
       shell: bash
       run: |
-        echo "::set-output name=value::$(/bin/date -u "+%Y%m%d-%H%M%S")"
+        echo "::set-output name=value::$(/bin/date -u \"+%Y%m%d-%H%M%S\")"
 
     - name: Cache cardano-node DB
       id: cache
@@ -32,7 +32,7 @@ jobs:
         restore-keys: |
           cardano-node-ogmios-${{ matrix.network }}-
 
-    - name: ⟲ Sync Node
+    - name: Sync Node
       uses: CardanoSolutions/gh-action-cardano-node-ogmios-docker-sync@v1.0.1
       with:
         db-dir: ${{ runner.temp }}/db-${{ matrix.network }}
