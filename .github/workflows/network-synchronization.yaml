@@ -1,6 +1,9 @@
 name: Network Synchronization
 
 on:
+  push:
+    branches: # (2)!
+      - master
   schedule:
     - cron: '00 06,18 * * *'
       #workflow_dispatch:
