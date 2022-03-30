@@ -74,6 +74,7 @@ do
 
     showProgress $NETWORK_SYNCHRONIZATION
     PREDICATE=$(bc <<< "$NETWORK_SYNCHRONIZATION >= $THRESHOLD")
+    echo "$NETWORK_SYNCHRONIZATION >= $THRESHOLD -> $PREDICATE"
 
     if [ "$PREDICATE" -eq 1 ]; then
       exit 0
