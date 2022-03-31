@@ -5,7 +5,7 @@ on:
     branches: # (2)!
       - master
   schedule:
-    - cron: '15 19 * * *'
+    - cron: '0 2 * * *'
 
 jobs:
   sync_and_cache:
@@ -35,7 +35,7 @@ jobs:
           cardano-node-ogmios-${{ matrix.network }}-
 
     - name: Sync Node
-      uses: elviejo79/gh-action-cardano-node-ogmios-docker-sync@18fb73fbdb900f86e1209baf3f5780706b1f2624
+      uses: elviejo79/gh-action-cardano-node-ogmios-docker-sync@c5a98ee33d8fc53faf0237e300007dbe49424966
       with:
         db-dir: ${{ runner.temp }}/db-${{ matrix.network }}
         network: ${{ matrix.network }}
