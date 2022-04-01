@@ -5,7 +5,7 @@ on:
     branches: # (2)!
       - master
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '0 * * * *'
 
 jobs:
   sync_and_cache:
