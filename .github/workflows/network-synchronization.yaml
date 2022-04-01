@@ -3,7 +3,7 @@ name: Network Synchronization
 on:
   push:
     branches: # (2)!
-      - master
+      - new-wait-and-sync
   schedule:
     - cron: '0 * * * *'
 
