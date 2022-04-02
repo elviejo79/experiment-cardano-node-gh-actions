@@ -63,23 +63,30 @@ showProgress () {
 for (( ;; ))
 do
   HEALTH=$(curl -sS $URL)
-  NETWORK_SYNCHRONIZATION=$(sed 's/.*"networkSynchronization":\([0-9]\+\.\?[0-9]*\).*/\1/' <<< $HEALTH)
+  CONNECTION_STATUS=$(jq .connectionStatus <<< $HEALTH)
 
-  RE='^[0-9]+\.?[0-9]*$'
-  if ! [[ $NETWORK_SYNCHRONIZATION =~ $RE ]] ; then
-     echo "error: unexpected response from /health endpoint: $HEALTH"
-     exit 1
-  fi
 
-  showProgress $NETWORK_SYNCHRONIZATION
-  PREDICATE=$(bc <<< "$NETWORK_SYNCHRONIZATION >= $THRESHOLD")
-
-  if [ "$PREDICATE" -eq 1 ]; then
-    exit 0
-  elif [ $SECONDS -gt $TIMEOUT ]; then
-    echo "WARNING: Reached the timeout limit without sync. But that's OK, we will continue on the next scheduled run."
-    exit 0
-  else
+  if ! [[ $CONNECTION_STATUS = "connected" ]] ; then
+    echo "Waiting for node.socket..."
     sleep 5
+  else
+    NETWORK_SYNCHRONIZATION=$( jq -e .networkSynchronization <<< $HEALTH)
+
+    if ! [[ $NETWORK_SYNCHRONIZATION ]] ; then
+      echo "error: unexpected response from /health endpoint: $HEALTH"
+      exit 1
+    fi
+
+    showProgress $NETWORK_SYNCHRONIZATION
+    PREDICATE=$(bc <<< "$NETWORK_SYNCHRONIZATION >= $THRESHOLD")
+
+    if [ "$PREDICATE" -eq 1 ]; then
+      exit 0
+    elif [ $SECONDS -gt $TIMEOUT ]; then
+      echo "WARNING: Reached the timeout limit without sync. But that's OK, we will continue on the next scheduled run."
+      exit 0
+    else
+        sleep 5
+    fi
   fi
 done
