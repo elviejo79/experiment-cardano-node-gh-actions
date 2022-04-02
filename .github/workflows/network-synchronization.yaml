@@ -35,8 +35,7 @@ jobs:
           cardano-node-ogmios-${{ matrix.network }}-
 
     - name: Sync Node
-      uses: elviejo79/gh-action-cardano-node-ogmios-docker-sync@134fa20f0c02ba17fc3392ae2b18dd02c641cbc7
+      uses: CardanoSolutions/cardano-node-ogmios-docker-sync@v1.0.1
       with:
         db-dir: ${{ runner.temp }}/db-${{ matrix.network }}
         network: ${{ matrix.network }}
-        timeout: 5400
