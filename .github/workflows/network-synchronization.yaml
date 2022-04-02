@@ -27,7 +27,7 @@ jobs:
 
     - name: Cache cardano-node DB
       id: cache
-      uses: actions/cache@v2.1.1
+      uses: actions/cache@v2.1.7
       with:
         path: ${{ runner.temp }}/db-${{ matrix.network }}
         key: cardano-node-ogmios-${{ matrix.network }}-${{ steps.date-time.outputs.value }}
