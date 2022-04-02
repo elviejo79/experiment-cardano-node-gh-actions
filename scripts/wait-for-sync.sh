@@ -38,7 +38,7 @@ if [ -z "$THRESHOLD" ]; then
 fi
 
 # GitHUb actions have a limit of 6 hours so we will limit this script to 5 hours
-readonly TIMEOUT=${3:-$(( 10*60 ))}
+readonly TIMEOUT=${3:-$(( 5*60*60 ))}
 
 URL=http://localhost:$OGMIOS_PORT/health
 
