@@ -21,9 +21,9 @@ exitWithUsage () {
   echo -e "Error: missing argument(s)!\n"
   echo -e "Usage: $0 OGMIOS_PORT THRESHOLD TIMEOUT"
   echo -e "    Wait until a running Ogmios server at OGMIOS_PORT reaches THRESHOLD network synchronization.\n"
-  echo -e "    Or it reaches the TIMEOUT in seconds to 18000 (5 hours)"
+  echo -e "    Or it reaches the TIMEOUT in seconds default to 699s 10mins."
   echo -e "Example: \n    $0 1338 0.95"
-  echo -e "         \n    $0 1337 0.99 3600"
+  echo -e "         \n    $0 1337 0.99 600"
   exit 1
 }
 
@@ -38,7 +38,7 @@ if [ -z "$THRESHOLD" ]; then
 fi
 
 # GitHUb actions have a limit of 6 hours so we will limit this script to 5 hours
-readonly TIMEOUT=${3:-$(( 5*60*60 ))}
+readonly TIMEOUT=${3:-$(( 10*60 ))}
 
 URL=http://localhost:$OGMIOS_PORT/health
 
