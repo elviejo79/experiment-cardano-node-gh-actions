@@ -19,11 +19,9 @@ set -eo pipefail
 
 exitWithUsage () {
   echo -e "Error: missing argument(s)!\n"
-  echo -e "Usage: $0 OGMIOS_PORT THRESHOLD TIMEOUT"
+  echo -e "Usage: $0 OGMIOS_PORT THRESHOLD"
   echo -e "    Wait until a running Ogmios server at OGMIOS_PORT reaches THRESHOLD network synchronization.\n"
-  echo -e "    Or it reaches the TIMEOUT in seconds default to 699s 10mins."
   echo -e "Example: \n    $0 1338 0.95"
-  echo -e "         \n    $0 1337 0.99 600"
   exit 1
 }
 
@@ -37,8 +35,7 @@ if [ -z "$THRESHOLD" ]; then
   exitWithUsage
 fi
 
-# GitHUb actions have a limit of 6 hours so we will limit this script to 5 hours
-readonly TIMEOUT=${3:-$(( 10*60 ))}
+TIMEOUT=${3:-600}
 
 URL=http://localhost:$OGMIOS_PORT/health
 
@@ -62,31 +59,34 @@ showProgress () {
 
 for (( ;; ))
 do
+  if (( $SECONDS > $TIMEOUT )); then
+      echo "Warning the script has timedout, but that's ok we will cache the reulst and continue on next schedul run"
+      exit 0
+  fi
+
   HEALTH=$(curl -sS $URL)
-  CONNECTION_STATUS=$(jq .connectionStatus <<< $HEALTH)
 
-
+  CONNECTION_STATUS=$(sed 's/.*"connectionStatus":"\([a-z]\+\)".*/\1/' <<< $HEALTH)
   if ! [[ $CONNECTION_STATUS = "connected" ]] ; then
     echo "Waiting for node.socket..."
     sleep 5
   else
-    NETWORK_SYNCHRONIZATION=$( jq -e .networkSynchronization <<< $HEALTH)
+    NETWORK_SYNCHRONIZATION=$(sed 's/.*"networkSynchronization":\([0-9]\+\.\?[0-9]*\).*/\1/' <<< $HEALTH)
 
-    if ! [[ $NETWORK_SYNCHRONIZATION ]] ; then
-      echo "error: unexpected response from /health endpoint: $HEALTH"
-      exit 1
+    RE='^[0-9]+\.?[0-9]*$'
+    if ! [[ $NETWORK_SYNCHRONIZATION =~ $RE ]] ; then
+       echo "error: unexpected response from /health endpoint: $HEALTH"
+       exit 1
     fi
 
     showProgress $NETWORK_SYNCHRONIZATION
     PREDICATE=$(bc <<< "$NETWORK_SYNCHRONIZATION >= $THRESHOLD")
+    echo "$NETWORK_SYNCHRONIZATION >= $THRESHOLD -> $PREDICATE"
 
     if [ "$PREDICATE" -eq 1 ]; then
       exit 0
-    elif [ $SECONDS -gt $TIMEOUT ]; then
-      echo "WARNING: Reached the timeout limit without sync. But that's OK, we will continue on the next scheduled run."
-      exit 0
     else
-        sleep 5
+      sleep 5
     fi
   fi
 done
