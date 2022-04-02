@@ -5,7 +5,7 @@ on:
     branches: # (2)!
       - new-wait-and-sync
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '0 */2 * * *'
 
 jobs:
   sync_and_cache:
@@ -39,3 +39,4 @@ jobs:
       with:
         db-dir: ${{ runner.temp }}/db-${{ matrix.network }}
         network: ${{ matrix.network }}
+        timeout: 5400
